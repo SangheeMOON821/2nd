@@ -6,4 +6,4 @@ matplotlib
 streamlit_elements
 numpy
 matplotlib
-python_version = "3.10"
+
