@@ -2,79 +2,54 @@ import streamlit as st
 import yfinance as yf
 import datetime
 import pandas as pd
-import matplotlib.pyplot as plt
 
-# 찜한 주식 저장용 (세션 상태)
-if "favorites" not in st.session_state:
-    st.session_state.favorites = set()
+# 페이지 제목
+st.title("🌐 글로벌 시가총액 Top 10 기업 - 3년간 주가 비교")
 
-st.title("🌍 글로벌 주식 분석 앱")
-st.subheader("📈 최근 3년 주가 동향 및 성장 가능성 분석")
+# 시가총액 상위 10개 기업 티커
+top10_tickers = {
+    "Apple (AAPL)": "AAPL",
+    "Microsoft (MSFT)": "MSFT",
+    "NVIDIA (NVDA)": "NVDA",
+    "Amazon (AMZN)": "AMZN",
+    "Alphabet (GOOGL)": "GOOGL",
+    "Meta (META)": "META",
+    "Berkshire Hathaway (BRK-B)": "BRK-B",
+    "TSMC (TSM)": "TSM",
+    "Eli Lilly (LLY)": "LLY",
+    "JPMorgan Chase (JPM)": "JPM"
+}
 
-# 날짜 설정 (최근 3년)
-end_date = datetime.date.today()
-start_date = end_date - datetime.timedelta(days=365 * 3)
+# 사용자 선택 (다중)
+selected = st.multiselect("📌 비교할 기업을 선택하세요:", list(top10_tickers.keys()), default=list(top10_tickers.keys())[:5])
 
-# 주식 검색
-ticker_input = st.text_input("🔍 주식 티커를 입력하세요 (예: AAPL, TSLA, MSFT, NVDA 등):")
+# 날짜 범위: 최근 3년
+end = datetime.date.today()
+start = end - datetime.timedelta(days=365*3)
 
-if ticker_input:
-    try:
-        stock = yf.Ticker(ticker_input)
-        hist = stock.history(start=start_date, end=end_date)
+# 주가 데이터 로딩
+@st.cache_data(ttl=3600)
+def load_data(ticker):
+    return yf.Ticker(ticker).history(start=start, end=end)['Close']
 
-        if hist.empty:
-            st.warning("유효한 주식 티커를 입력해주세요.")
-        else:
-            # 주가 그래프
-            st.line_chart(hist['Close'], use_container_width=True)
+# 데이터프레임 병합
+if selected:
+    st.subheader("📈 주가 비교 차트 (최근 3년)")
 
-            # 성장성 간단 분석
-            recent = hist['Close'][-1]
-            past = hist['Close'][0]
-            growth = (recent - past) / past * 100
+    compare_df = pd.DataFrame()
+    for name in selected:
+        ticker = top10_tickers[name]
+        series = load_data(ticker)
+        compare_df[name] = series
 
-            st.metric(label="📊 3년간 주가 성장률", value=f"{growth:.2f}%")
-            if growth > 100:
-                st.success("✅ 높은 성장 가능성이 있습니다!")
-            elif growth > 30:
-                st.info("🔄 안정적인 성장세를 보이고 있습니다.")
-            else:
-                st.warning("📉 성장률이 낮거나 정체 상태입니다.")
+    # 정규화 (처음 값 대비 % 변화로 비교)
+    norm_df = compare_df.divide(compare_df.iloc[0]).multiply(100)
 
-            # 찜하기
-            if st.button("⭐ 찜하기"):
-                st.session_state.favorites.add(ticker_input.upper())
-                st.success(f"{ticker_input.upper()}가 찜 목록에 추가되었습니다!")
+    st.line_chart(norm_df)
 
-    except Exception as e:
-        st.error(f"에러 발생: {e}")
-
-# 찜한 주식 비교
-if st.session_state.favorites:
-    st.subheader("📌 찜한 주식 비교")
-
-    selected_favs = st.multiselect("비교할 주식 선택", list(st.session_state.favorites), default=list(st.session_state.favorites))
-    
-    if selected_favs:
-        st.write("📉 주가 비교 차트 (최근 3년)")
-        compare_df = pd.DataFrame()
-
-        for fav in selected_favs:
-            fav_data = yf.Ticker(fav).history(start=start_date, end=end_date)
-            compare_df[fav] = fav_data['Close']
-
-        st.line_chart(compare_df)
-
-        st.write("📈 각 주식의 3년 성장률")
-        for fav in selected_favs:
-            fav_data = compare_df[fav].dropna()
-            if len(fav_data) > 1:
-                growth = (fav_data.iloc[-1] - fav_data.iloc[0]) / fav_data.iloc[0] * 100
-                st.write(f"**{fav}**: {growth:.2f}%")
-    else:
-        st.info("비교할 주식을 선택해주세요.")
-
+    st.subheader("📊 3년간 수익률 정리")
+    for name in selected:
+        growth = (compare_df[name].iloc[-1] - compare_df[name].iloc[0]) / compare_df[name].iloc[0] * 100
+        st.write(f"**{name}**: {growth:.2f}%")
 else:
-    st.info("아직 찜한 주식이 없습니다.")
-
+    st.info("비교할 기업을 하나 이상 선택해주세요.")
