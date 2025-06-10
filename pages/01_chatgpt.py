@@ -2,89 +2,91 @@ import streamlit as st
 import folium
 from streamlit_folium import st_folium
 
-st.set_page_config(page_title="프랑스 관광지 가이드", layout="wide")
+st.set_page_config(page_title="프랑스 지역별 관광 가이드", layout="wide")
 
-st.title("🇫🇷 프랑스 주요 관광지 가이드")
-st.markdown("""
-프랑스는 예술, 역사, 미식 등 다양한 매력을 가진 나라입니다.  
-아래에서 프랑스의 대표적인 관광지를 살펴보고, 지도에서 위치도 확인해보세요!
+st.title("🇫🇷 프랑스 지역별 관광 가이드")
+
+tabs = st.tabs(["🏖️ 프랑스 남부", "🏙️ 주요 도시", "📚 문화 & 유적지"])
+
+# ---------- 프랑스 남부 ----------
+with tabs[0]:
+    st.header("프랑스 남부 명소")
+    st.image("https://upload.wikimedia.org/wikipedia/commons/6/6f/Nice_vue_generale.jpg", caption="니스 해변", use_column_width=True)
+    st.markdown("""
+**니스 (Nice)**  
+지중해 연안의 프랑스 리비에라 대표 도시. 맑은 해변과 아기자기한 구시가지, 마티스 미술관이 인기.
+
+**아비뇽 (Avignon)**  
+교황청이 한때 옮겨졌던 역사적 도시로, 고딕양식의 교황궁(Palais des Papes)으로 유명함.
+
+**엑상프로방스 (Aix-en-Provence)**  
+세잔(Cézanne)의 고향으로 고즈넉한 골목과 라벤더 향이 인상적인 도시.
+
+**마르세유 (Marseille)**  
+프랑스 최대의 항구도시이자 다문화 도시. 노트르담 드 라 가르드 성당, 깔레뜨 섬이 관광 포인트.
+    """)
+
+# ---------- 주요 도시 ----------
+with tabs[1]:
+    st.header("프랑스 주요 도시와 위대한 과학자들")
+
+    cities = {
+        "파리": {
+            "image": "https://upload.wikimedia.org/wikipedia/commons/a/af/Tour_Eiffel_Wikimedia_Commons.jpg",
+            "scientist": "앙리 푸앵카레 (Henri Poincaré)",
+            "achievement": "수학자이자 물리학자로 상대성 이론의 수학적 기반을 다졌습니다."
+        },
+        "리옹": {
+            "image": "https://upload.wikimedia.org/wikipedia/commons/6/60/Lyon-Vieux-Lyon.jpg",
+            "scientist": "앙드레 마리 앙페르 (André-Marie Ampère)",
+            "achievement": "전류 단위인 '암페어'의 유래로, 전자기학의 기초를 마련했습니다."
+        },
+        "툴루즈": {
+            "image": "https://upload.wikimedia.org/wikipedia/commons/2/29/Toulouse_Garonne.jpg",
+            "scientist": "폴 사바티에 (Paul Sabatier)",
+            "achievement": "촉매 화학으로 노벨 화학상 수상. 유기수소화 반응 개발."
+        },
+    }
+
+    city_choice = st.selectbox("도시를 선택하세요", list(cities.keys()))
+
+    st.image(cities[city_choice]["image"], use_column_width=True)
+    st.markdown(f"""
+### {city_choice}
+- **출신 과학자**: {cities[city_choice]["scientist"]}
+- **업적**: {cities[city_choice]["achievement"]}
+    """)
+
+# ---------- 문화와 유적지 ----------
+with tabs[2]:
+    st.header("문화 유산과 예술의 도시")
+
+    places = {
+        "몽생미셸": {
+            "description": "해안에 우뚝 솟은 수도원으로 유네스코 세계유산. 밀물과 썰물의 경계에서 신비로운 풍경을 자랑함.",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Mont_St_Michel_3%2C_Brittany%2C_France_-_July_2011.jpg",
+            "media": ["『몽생미셸의 비밀』", "영화 『마법의 성』 영감"]
+        },
+        "지베르니": {
+            "description": "모네의 집과 정원이 있는 곳. 인상주의 탄생의 중심지로 예술가들의 성지.",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/3/38/Giverny_house_and_garden.jpg",
+            "media": ["모네의 수련 연작", "다큐멘터리 『빛의 화가 모네』"]
+        },
+        "아를 (Arles)": {
+            "description": "빈센트 반 고흐가 머문 도시로, 고대 로마 원형극장과 함께 예술과 역사가 공존.",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Arles_Amphithéâtre.jpg",
+            "media": ["고흐 작품 『아를의 별이 빛나는 밤』", "책 『반 고흐의 편지들』"]
+        }
+    }
+
+    pick = st.selectbox("도시를 선택하세요", list(places.keys()))
+    st.image(places[pick]["image"], caption=pick, use_column_width=True)
+    st.markdown(f"""
+**{pick}**  
+{places[pick]["description"]}
 """)
 
-# 관광지 데이터
-tourist_spots = [
-    {
-        "name": "에펠탑 (Eiffel Tower)",
-        "location": [48.8584, 2.2945],
-        "description": """
-파리의 상징이자 프랑스를 대표하는 랜드마크입니다.  
-밤에는 조명이 반짝이며 로맨틱한 분위기를 연출하고, 전망대에서는 파리 시내가 한눈에 내려다보입니다.
-        """
-    },
-    {
-        "name": "루브르 박물관 (Louvre Museum)",
-        "location": [48.8606, 2.3376],
-        "description": """
-세계 최대의 미술관 중 하나로, 모나리자, 밀로의 비너스 등을 소장하고 있습니다.  
-고대 유물부터 근대 회화까지 다양한 예술작품을 감상할 수 있습니다.
-        """
-    },
-    {
-        "name": "베르사유 궁전 (Palace of Versailles)",
-        "location": [48.8049, 2.1204],
-        "description": """
-프랑스 절대왕정의 상징으로 루이 14세가 건설한 궁전입니다.  
-화려한 거울의 방(Hall of Mirrors)과 광대한 정원이 유명합니다.
-        """
-    },
-    {
-        "name": "니스 해변 (Nice)",
-        "location": [43.7102, 7.2620],
-        "description": """
-지중해 연안의 프랑스 남부 도시로, 아름다운 해변과 푸른 바다가 유명합니다.  
-아트갤러리, 해산물 요리, 유럽 특유의 여유로운 분위기를 만끽할 수 있습니다.
-        """
-    },
-    {
-        "name": "리옹 구시가지 (Lyon Old Town)",
-        "location": [45.7640, 4.8357],
-        "description": """
-유네스코 세계유산에 등록된 중세도시로, 미로 같은 골목과 고딕 건축이 매력적입니다.  
-프랑스 요리의 중심지로도 유명하며 미식가들에게 사랑받는 도시입니다.
-        """
-    },
-    {
-        "name": "마르세유 항구 (Marseille)",
-        "location": [43.2965, 5.3698],
-        "description": """
-프랑스 제2의 도시이자 지중해 최대의 항구 도시입니다.  
-이국적인 분위기와 함께 항구 주변의 해산물 식당, 노트르담 드 라 가르드 성당 등이 인기입니다.
-        """
-    },
-]
-
-# Folium 지도 생성
-m = folium.Map(location=[46.6031, 1.8883], zoom_start=6, tiles='OpenStreetMap')
-
-# 마커 추가
-for spot in tourist_spots:
-    folium.Marker(
-        location=spot["location"],
-        popup=f"<strong>{spot['name']}</strong><br>{spot['description']}",
-        tooltip=spot["name"],
-        icon=folium.Icon(color="blue", icon="info-sign")
-    ).add_to(m)
-
-st.subheader("🗺️ 관광지 지도 보기")
-st.markdown("아래 지도에서 관광지를 클릭하면 자세한 설명을 확인할 수 있어요.")
-
-# 지도 표시
-st_data = st_folium(m, width=1000, height=600)
-
-# 선택한 관광지 정보 보여주기
-if st_data and st_data.get("last_object_clicked"):
-    clicked_coords = st_data["last_object_clicked"]["lat"], st_data["last_object_clicked"]["lng"]
-    for spot in tourist_spots:
-        if abs(spot["location"][0] - clicked_coords[0]) < 0.01 and abs(spot["location"][1] - clicked_coords[1]) < 0.01:
-            st.markdown(f"### 📍 {spot['name']}")
-            st.write(spot["description"])
-            break
+    if st.button("🎬 이 지역이 배경이 된 영화나 책을 추천해드릴까요?"):
+        st.markdown("**추천 작품:**")
+        for work in places[pick]["media"]:
+            st.write(f"📘 {work}")
