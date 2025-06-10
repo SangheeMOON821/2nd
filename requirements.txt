@@ -4,3 +4,4 @@ yfinance
 plotly
 matplotlib
 streamlit_elements
+numpy
