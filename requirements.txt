@@ -3,3 +3,4 @@ streamlit-folium
 yfinance
 plotly
 matplotlib
+streamlit_elements
