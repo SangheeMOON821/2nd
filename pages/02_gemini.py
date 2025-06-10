@@ -11,52 +11,66 @@ tourist_spots_data = {
     "파리": [
         {"name": "에펠탑 🗼", "lat": 48.8584, "lon": 2.2945,
          "description": "파리의 상징이자 랜드마크로, 낮과 밤 언제 방문해도 아름다운 풍경을 선사합니다. 저녁에는 5분간 반짝이는 에펠탑 야경을 놓치지 마세요! 미리 온라인으로 티켓을 예매하면 대기 시간을 줄일 수 있습니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Eiffel_Tower_from_Champs_de_Mars.jpg/800px-Eiffel_Tower_from_Champs_de_Mars.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Eiffel_Tower_from_Champs_de_Mars.jpg/800px-Eiffel_Tower_from_Champs_de_Mars.jpg",
+         "region": "파리"},
         {"name": "루브르 박물관 🖼️", "lat": 48.8606, "lon": 2.3376,
          "description": "세계에서 가장 큰 박물관 중 하나로, 레오나르도 다빈치의 '모나리자', 밀로의 '비너스' 등 수많은 예술 작품을 소장하고 있습니다. 워낙 넓으니 미리 보고 싶은 작품을 정해서 효율적인 동선을 계획하는 것이 좋습니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Pyramide_du_Louvre_et_aile_Richelieu.jpg/800px-Pyramide_du_Louvre_et_aile_Richelieu.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Pyramide_du_Louvre_et_aile_Richelieu.jpg/800px-Pyramide_du_Louvre_et_aile_Richelieu.jpg",
+         "region": "파리"},
         {"name": "노트르담 대성당 ⛪", "lat": 48.8530, "lon": 2.3499,
          "description": "고딕 건축의 걸작으로, 파리의 역사와 문화를 상징하는 중요한 유적지입니다. (현재 복원 중) 외관만으로도 그 웅장함에 압도될 것입니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Notre_Dame_de_Paris_frontal_view_at_sunset.jpg/800px-Notre_Dame_de_Paris_frontal_view_at_sunset.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Notre_Dame_de_Paris_frontal_view_at_sunset.jpg/800px-Notre_Dame_de_Paris_frontal_view_at_sunset.jpg",
+         "region": "파리"},
         {"name": "개선문 🏛️", "lat": 48.8738, "lon": 2.2950,
          "description": "나폴레옹 1세가 프랑스군의 승리를 기념하기 위해 세운 거대한 건축물입니다. 정상에 오르면 파리 시내를 한눈에 조망할 수 있습니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Arc_de_Triomphe_de_l%27%C3%89toile%2C_Paris_2016.jpg/800px-Arc_de_Triomphe_de_l%27%C3%89toile%2C_Paris_2016.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Arc_de_Triomphe_de_l%27%C3%89toile%2C_Paris_2016.jpg/800px-Arc_de_Triomphe_de_l%27%C3%89toile%2C_Paris_2016.jpg",
+         "region": "파리"},
         {"name": "몽마르뜨 언덕 & 사크레쾨르 대성당 🎨", "lat": 48.8867, "lon": 2.3431,
          "description": "파리에서 가장 높은 언덕으로, 아름다운 사크레쾨르 대성당과 예술가들의 거리인 테르트르 광장이 있습니다. 낭만적인 분위기를 느끼기에 좋습니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Sacre-Coeur_Basilica_Montmartre_Paris.jpg/800px-Sacre-Coeur_Basilica_Montmartre_Paris.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Sacre-Coeur_Basilica_Montmartre_Paris.jpg/800px-Sacre-Coeur_Basilica_Montmartre_Paris.jpg",
+         "region": "파리"},
         {"name": "세느 강 유람선 🛳️", "lat": 48.8600, "lon": 2.3100, # 대략적인 위치
          "description": "파리의 주요 명소들을 강 위에서 감상할 수 있는 특별한 경험을 선사합니다. 특히 저녁에 탑승하면 에펠탑 야경과 함께 로맨틱한 시간을 보낼 수 있습니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Pont_Alexandre_III_on_the_Seine_River_at_sunset.jpg/800px-Pont_Alexandre_III_on_the_Seine_River_at_sunset.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Pont_Alexandre_III_on_the_Seine_River_at_sunset.jpg/800px-Pont_Alexandre_III_on_the_Seine_River_at_sunset.jpg",
+         "region": "파리"},
     ],
     "남프랑스": [
         {"name": "니스 - 프롬나드 데 장글레 🏖️", "lat": 43.6960, "lon": 7.2659,
          "description": "아름다운 해변을 따라 펼쳐진 산책로로, 지중해의 에메랄드빛 바다를 감상하며 여유로운 시간을 보낼 수 있습니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Nice_Promenade_des_Anglais.jpg/800px-Nice_Promenade_des_Anglais.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Nice_Promenade_des_Anglais.jpg/800px-Nice_Promenade_des_Anglais.jpg",
+         "region": "남프랑스"},
         {"name": "칸 - 라 크루아제트 🎬", "lat": 43.5492, "lon": 7.0223,
          "description": "세계적으로 유명한 칸 영화제가 열리는 도시로, 해변을 따라 고급 호텔과 상점들이 늘어서 있습니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Cannes_-_La_Croisette_et_Palais_des_Festivals.jpg/800px-Cannes_-_La_Croisette_et_Palais_des_Festivals.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Cannes_-_La_Croisette_et_Palais_des_Festivals.jpg/800px-Cannes_-_La_Croisette_et_Palais_des_Festivals.jpg",
+         "region": "남프랑스"},
         {"name": "마르세유 - 구 항구 & 노트르담 드 라 가르드 대성당 ⚓", "lat": 43.2965, "lon": 5.3700, # 구 항구
          "description": "프랑스에서 가장 오래된 항구 도시로, 활기찬 분위기와 신선한 해산물 요리를 즐길 수 있습니다. 노트르담 드 라 가르드 대성당에서 도시 전경을 조망해 보세요.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Marseille_Notre_Dame_de_la_Garde.jpg/800px-Marseille_Notre_Dame_de_la_Garde.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Marseille_Notre_Dame_de_la_Garde.jpg/800px-Marseille_Notre_Dame_de_la_Garde.jpg",
+         "region": "남프랑스"},
         {"name": "아비뇽 - 교황청 📜", "lat": 43.9500, "lon": 4.8077,
          "description": "중세 시대 교황들이 거주했던 웅장한 궁전으로, 유네스코 세계문화유산으로 지정되어 있습니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Palais_des_Papes_%28Avignon%29.jpg/800px-Palais_des_Papes_%28Avignon%29.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Palais_des_Papes_%28Avignon%29.jpg/800px-Palais_des_Papes_%28Avignon%29.jpg",
+         "region": "남프랑스"},
     ],
     "프랑스 서부": [
         {"name": "몽생미셸 🌊", "lat": 48.6361, "lon": -1.5118,
          "description": "신비로운 섬 위에 지어진 수도원으로, 조수 간만의 차에 따라 섬으로 변하는 독특한 풍경을 자랑합니다. 유네스코 세계문화유산이자 프랑스 여행의 하이라이트 중 하나입니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Mont_Saint-Michel_and_its_Bay_at_Sunset.jpg/800px-Mont_Saint-Michel_and_its_Bay_at_Sunset.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Mont_Saint-Michel_and_its_Bay_at_Sunset.jpg/800px-Mont_Saint-Michel_and_its_Bay_at_Sunset.jpg",
+         "region": "프랑스 서부"},
         {"name": "보르도 🍷", "lat": 44.8378, "lon": -0.5792,
          "description": "세계적으로 유명한 와인 산지로, 아름다운 와인 샤또와 함께 와인 투어를 즐길 수 있습니다. '물의 거울' 광장은 사진 찍기 좋은 명소입니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Bordeaux_Miroir_d%27eau_et_Place_de_la_Bourse.jpg/800px-Bordeaux_Miroir_d%27eau_et_Place_de_la_Bourse.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Bordeaux_Miroir_d%27eau_et_Place_de_la_Bourse.jpg/800px-Bordeaux_Miroir_d%27eau_et_Place_de_la_Bourse.jpg",
+         "region": "프랑스 서부"},
     ],
     "기타 주요 도시/지역": [
         {"name": "스트라스부르 - 대성당 & 쁘띠 프랑스 🎄", "lat": 48.5835, "lon": 7.7452,
          "description": "독일 국경에 위치하여 독특한 문화와 건축 양식을 자랑하는 도시입니다. 쁘띠 프랑스의 아름다운 운하와 목조 가옥, 그리고 웅장한 대성당이 인상적입니다. 특히 크리스마스 마켓 시즌에는 더욱 환상적인 분위기를 즐길 수 있습니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Petite_France%2C_Strasbourg.jpg/800px-Petite_France%2C_Strasbourg.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Petite_France%2C_Strasbourg.jpg/800px-Petite_France%2C_Strasbourg.jpg",
+         "region": "기타 주요 도시/지역"},
         {"name": "리옹 - 구시가지 & 푸르비에르 언덕 🍽️", "lat": 45.7578, "lon": 4.8320,
          "description": "프랑스의 미식 수도로 불리는 도시입니다. 중세 시대의 좁은 골목과 트라불(Traboule)이라는 비밀 통로들이 얽혀 있는 구시가지, 그리고 리옹 시내를 한눈에 조망할 수 있는 푸르비에르 언덕이 매력적입니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Lyon_-_vue_de_la_Fourvi%C3%A8re.jpg/800px-Lyon_-_vue_de_la_Fourvi%C3%A8re.jpg"},
+         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Lyon_-_vue_de_la_Fourvi%C3%A8re.jpg/800px-Lyon_-_vue_de_la_Fourvi%C3%A8re.jpg",
+         "region": "기타 주요 도시/지역"},
     ]
 }
 
@@ -114,9 +128,48 @@ movie_data = {
     ]
 }
 
+# 모든 관광지 데이터를 하나의 리스트로 통합 (검색 및 찜 기능을 위해)
+all_spots = []
+for region, spots in tourist_spots_data.items():
+    for spot in spots:
+        all_spots.append(spot)
+
+# --- 세션 상태 초기화 (찜 기능) ---
+if 'favorites' not in st.session_state:
+    st.session_state.favorites = []
+
+# --- 찜 추가/제거 함수 ---
+def add_to_favorites(spot_name):
+    if spot_name not in st.session_state.favorites:
+        st.session_state.favorites.append(spot_name)
+        st.toast(f"✨ '{spot_name}'을(를) 찜 목록에 추가했어요!")
+
+def remove_from_favorites(spot_name):
+    if spot_name in st.session_state.favorites:
+        st.session_state.favorites.remove(spot_name)
+        st.toast(f"💔 '{spot_name}'을(를) 찜 목록에서 삭제했어요.")
+
 # --- 앱 시작 ---
 st.title("🇫🇷 프랑스 주요 관광지 친절 가이드 🥖")
 st.write("프랑스 여행을 위한 최고의 가이드입니다. 프랑스의 아름다운 명소들을 함께 탐험해 보세요! 예술, 역사, 미식, 그리고 낭만이 가득한 프랑스로 떠날 준비되셨나요? ✈️")
+
+# --- 검색창 및 찜 목록 사이드바 ---
+st.sidebar.header("🔍 관광지 검색 및 찜 목록")
+
+search_query = st.sidebar.text_input("도시 또는 관광지 이름을 검색하세요:")
+
+st.sidebar.subheader("❤️ 나의 찜 목록")
+if st.session_state.favorites:
+    for fav_spot_name in st.session_state.favorites:
+        col1, col2 = st.sidebar.columns([0.7, 0.3])
+        with col1:
+            st.sidebar.write(fav_spot_name)
+        with col2:
+            if st.button("❌", key=f"remove_fav_{fav_spot_name}"):
+                remove_from_favorites(fav_spot_name)
+                st.experimental_rerun() # 찜 목록 업데이트를 위해 앱 재실행
+else:
+    st.sidebar.write("찜 목록이 비어있어요. 관심 있는 관광지를 찜해 보세요!")
 
 # --- 전체 지도 섹션 ---
 st.header("✨ 프랑스 주요 관광지 지도 🗺️")
@@ -126,16 +179,40 @@ m = folium.Map(location=[46.603354, 1.888334], zoom_start=6) # 프랑스 중심 
 
 for region, spots in tourist_spots_data.items():
     for spot in spots:
+        icon_color = "red" if region == "파리" else "blue" if region == "남프랑스" else "green" if region == "프랑스 서부" else "purple"
         folium.Marker(
             location=[spot["lat"], spot["lon"]],
             popup=f"<b>{spot['name']}</b><br>{spot['description'].split('.')[0]}", # 팝업은 간략하게 첫 문장만
             tooltip=spot["name"],
-            icon=folium.Icon(color="red" if region == "파리" else "blue" if region == "남프랑스" else "green" if region == "프랑스 서부" else "purple")
+            icon=folium.Icon(color=icon_color)
         ).add_to(m)
 
 folium_static(m, width=1000, height=600)
 
 st.write("---")
+
+# --- 검색 결과 표시 ---
+if search_query:
+    st.header(f"🔍 '{search_query}' 검색 결과")
+    found_spots = [spot for spot in all_spots if search_query.lower() in spot['name'].lower() or search_query.lower() in spot['region'].lower()]
+
+    if found_spots:
+        for spot in found_spots:
+            st.subheader(f"📍 {spot['name']}")
+            st.image(spot["image"], caption=f"{spot['name']} 추천 사진", width=400)
+            st.write(spot["description"])
+            
+            # 찜 버튼
+            if spot['name'] not in st.session_state.favorites:
+                if st.button(f"❤️ {spot['name']} 찜하기", key=f"add_fav_{spot['name']}"):
+                    add_to_favorites(spot['name'])
+                    st.experimental_rerun()
+            else:
+                st.button(f"💖 {spot['name']} (찜 완료)", disabled=True, key=f"added_fav_{spot['name']}")
+            st.markdown("---")
+    else:
+        st.write("검색 결과가 없습니다. 다른 키워드로 다시 검색해 보세요.")
+    st.write("---")
 
 # --- 지역별 정보 탭 ---
 tabs = st.tabs(["🗼 파리", "☀️ 남프랑스", "🌊 프랑스 서부", "🎨 기타 주요 도시/지역"])
@@ -152,8 +229,16 @@ with tabs[0]: # 파리 탭
     st.subheader("🏛️ 파리의 유명 유적지")
     for spot in tourist_spots_data["파리"]:
         st.markdown(f"**{spot['name']}**")
-        st.image(spot["image"], caption=spot["name"].replace(' ', '').split('(')[0], width=400)
+        st.image(spot["image"], caption=f"{spot['name']} 추천 사진", width=400)
         st.write(spot["description"])
+        
+        # 찜 버튼
+        if spot['name'] not in st.session_state.favorites:
+            if st.button(f"❤️ {spot['name']} 찜하기", key=f"add_fav_tab_{spot['name']}"):
+                add_to_favorites(spot['name'])
+                st.experimental_rerun()
+        else:
+            st.button(f"💖 {spot['name']} (찜 완료)", disabled=True, key=f"added_fav_tab_{spot['name']}")
         st.markdown("---")
 
     st.subheader("🎬 파리가 배경인 영화 추천")
@@ -174,8 +259,16 @@ with tabs[1]: # 남프랑스 탭
     st.subheader("🏛️ 남프랑스의 유명 유적지")
     for spot in tourist_spots_data["남프랑스"]:
         st.markdown(f"**{spot['name']}**")
-        st.image(spot["image"], caption=spot["name"].replace(' ', '').split('(')[0], width=400)
+        st.image(spot["image"], caption=f"{spot['name']} 추천 사진", width=400)
         st.write(spot["description"])
+
+        # 찜 버튼
+        if spot['name'] not in st.session_state.favorites:
+            if st.button(f"❤️ {spot['name']} 찜하기", key=f"add_fav_tab_{spot['name']}"):
+                add_to_favorites(spot['name'])
+                st.experimental_rerun()
+        else:
+            st.button(f"💖 {spot['name']} (찜 완료)", disabled=True, key=f"added_fav_tab_{spot['name']}")
         st.markdown("---")
 
     st.subheader("🎬 남프랑스가 배경인 영화 추천")
@@ -196,8 +289,16 @@ with tabs[2]: # 프랑스 서부 탭
     st.subheader("🏛️ 프랑스 서부의 유명 유적지")
     for spot in tourist_spots_data["프랑스 서부"]:
         st.markdown(f"**{spot['name']}**")
-        st.image(spot["image"], caption=spot["name"].replace(' ', '').split('(')[0], width=400)
+        st.image(spot["image"], caption=f"{spot['name']} 추천 사진", width=400)
         st.write(spot["description"])
+
+        # 찜 버튼
+        if spot['name'] not in st.session_state.favorites:
+            if st.button(f"❤️ {spot['name']} 찜하기", key=f"add_fav_tab_{spot['name']}"):
+                add_to_favorites(spot['name'])
+                st.experimental_rerun()
+        else:
+            st.button(f"💖 {spot['name']} (찜 완료)", disabled=True, key=f"added_fav_tab_{spot['name']}")
         st.markdown("---")
 
     st.subheader("🎬 프랑스 서부가 배경인 영화 추천")
@@ -218,8 +319,16 @@ with tabs[3]: # 기타 주요 도시/지역 탭
     st.subheader("🏛️ 기타 주요 도시/지역의 유명 유적지")
     for spot in tourist_spots_data["기타 주요 도시/지역"]:
         st.markdown(f"**{spot['name']}**")
-        st.image(spot["image"], caption=spot["name"].replace(' ', '').split('(')[0], width=400)
+        st.image(spot["image"], caption=f"{spot['name']} 추천 사진", width=400)
         st.write(spot["description"])
+
+        # 찜 버튼
+        if spot['name'] not in st.session_state.favorites:
+            if st.button(f"❤️ {spot['name']} 찜하기", key=f"add_fav_tab_{spot['name']}"):
+                add_to_favorites(spot['name'])
+                st.experimental_rerun()
+        else:
+            st.button(f"💖 {spot['name']} (찜 완료)", disabled=True, key=f"added_fav_tab_{spot['name']}")
         st.markdown("---")
 
     st.subheader("🎬 기타 주요 도시/지역이 배경인 영화 추천")
