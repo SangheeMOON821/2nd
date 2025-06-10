@@ -4,152 +4,134 @@ import pandas as pd
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 
-# --- 페이지 설정 ---
-st.set_page_config(page_title="글로벌 주가 분석", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="글로벌 주가 분석 및 찜", layout="wide", initial_sidebar_state="expanded")
+st.title("📈 글로벌 주가 분석 및 찜하기")
 
-# --- 데이터 캐싱 및 로딩 함수 (오류 수정) ---
-@st.cache_data
-def load_data(tickers, start, end):
-    """
-    선택된 티커들의 주가 데이터를 yfinance를 통해 다운로드하고, 수익률을 계산합니다.
-    KeyError를 해결하기 위해 데이터 다운로드 후 'Adj Close' 컬럼을 안전하게 추출합니다.
-    """
-    # 1. 모든 티커의 데이터를 한번에 다운로드합니다.
-    full_data = yf.download(tickers, start=start, end=end)
-    
-    if full_data.empty:
-        st.error(f"선택된 기간에 '{', '.join(tickers)}'에 대한 데이터를 가져올 수 없습니다.")
-        return None, None
+# --- 세션 상태 초기화 ---
+if 'favorite_stocks' not in st.session_state:
+    st.session_state['favorite_stocks'] = []
 
-    # 2. 'Adj Close' 데이터만 안전하게 선택합니다.
-    # 여러 티커: 컬럼이 MultiIndex -> ('Adj Close', 'MSFT'), ('Close', 'MSFT'), ...
-    # 단일 티커: 컬럼이 평탄화 -> 'Open', 'High', 'Close', 'Adj Close', ...
-    if isinstance(full_data.columns, pd.MultiIndex):
-        adj_close_data = full_data['Adj Close']
+# --- 데이터 캐싱 함수 ---
+@st.cache_data(ttl=3600)
+def load_stock_data(ticker, start_date, end_date):
+    data = yf.download(ticker, start=start_date, end_date=end_date)
+    return data
+
+# --- 성장 가능성 분석 (간단한 추세 분석) ---
+def analyze_growth_potential(data):
+    if data is None or data.empty:
+        return "데이터가 없습니다."
+
+    recent_return = (data['Adj Close'].iloc[-1] / data['Adj Close'].iloc[-30] - 1) * 100 if len(data) > 30 else 0
+    one_year_return = (data['Adj Close'].iloc[-1] / data['Adj Close'].iloc[-252] - 1) * 100 if len(data) > 252 else 0
+    volatility = data['Adj Close'].pct_change().rolling(window=30).std().iloc[-1] * (252**0.5) if len(data) > 30 else 0
+
+    analysis = f"**최근 1개월 수익률:** {recent_return:.2f}%\n\n"
+    analysis += f"**최근 1년 수익률:** {one_year_return:.2f}%\n\n"
+    analysis += f"**최근 변동성 (30일 기준, 연율화):** {volatility:.2f}"
+
+    if recent_return > 0 and one_year_return > 0:
+        analysis += "\n\n최근 추세는 긍정적으로 보입니다."
+    elif recent_return < 0 and one_year_return < 0:
+        analysis += "\n\n최근 추세는 다소 약세입니다."
     else:
-        # 단일 티커일 경우, 일관된 처리를 위해 DataFrame 형태로 유지합니다.
-        adj_close_data = full_data[['Adj Close']]
-        # 컬럼 이름을 티커로 변경합니다.
-        adj_close_data.columns = tickers if isinstance(tickers, list) and len(tickers) == 1 else [tickers]
+        analysis += "\n\n추세가 혼조세를 보이고 있습니다."
 
+    return analysis
 
-    # 데이터가 없는 티커(컬럼)는 제거합니다.
-    adj_close_data = adj_close_data.dropna(axis=1, how='all')
+# --- 주가 시각화 함수 ---
+def plot_stock_price(data, title):
+    if data is None or data.empty:
+        st.warning(f"{title}에 대한 데이터가 없습니다.")
+        return
 
-    if adj_close_data.empty:
-        st.error(f"유효한 'Adj Close' 데이터를 찾을 수 없습니다.")
-        return None, None
+    fig = go.Figure(data=[go.Scatter(x=data.index, y=data['Adj Close'], mode='lines')])
+    fig.update_layout(title=title, xaxis_title="날짜", yaxis_title="조정 종가 (USD)", template="plotly_dark")
+    st.plotly_chart(fig, use_container_width=True)
 
-    # 3. 수익률 계산 (첫 날 가격을 100으로 정규화)
-    # 계산 전, 휴일 등으로 인한 NaN 값을 바로 앞 데이터로 채웁니다 (forward fill).
-    normalized_data = (adj_close_data.ffill() / adj_close_data.ffill().iloc[0] * 100)
-    
-    return adj_close_data, normalized_data
+# --- 글로벌 시총 Top 10 기업 목록 (최신 정보로 업데이트 필요) ---
+top_10_companies = {
+    "Apple (AAPL)": "AAPL",
+    "Microsoft (MSFT)": "MSFT",
+    "Nvidia (NVDA)": "NVDA",
+    "Alphabet (GOOGL)": "GOOGL",
+    "Amazon (AMZN)": "AMZN",
+    "Meta (META)": "META",
+    "TSMC (TSM)": "TSM",
+    "Berkshire Hathaway (BRK-B)": "BRK-B",
+    "Eli Lilly (LLY)": "LLY",
+    "Broadcom (AVGO)": "AVGO"
+}
 
-# --- 사이드바 설정 ---
+end_date = datetime.today()
+start_date = end_date - timedelta(days=3 * 365)
+
+# --- 사이드바: 기업 선택 및 검색 ---
 with st.sidebar:
-    st.title("⚙️ 분석 설정")
-    
-    # 최신 시가총액 순위 (2024년 기준)
-    companies = {
-        "Microsoft (MSFT)": "MSFT",
-        "Apple (AAPL)": "AAPL",
-        "Nvidia (NVDA)": "NVDA",
-        "Alphabet (GOOGL)": "GOOGL",
-        "Amazon (AMZN)": "AMZN",
-        "Meta (META)": "META",
-        "TSMC (TSM)": "TSM",
-        "Berkshire Hathaway (BRK-B)": "BRK-B",
-        "Eli Lilly (LLY)": "LLY",
-        "Broadcom (AVGO)": "AVGO"
-    }
-    
-    selected_companies = st.multiselect(
-        "📌 기업 선택:",
-        options=list(companies.keys()),
-        default=["Microsoft (MSFT)", "Apple (AAPL)", "Nvidia (NVDA)", "Alphabet (GOOGL)", "Amazon (AMZN)"]
-    )
-    
-    st.markdown("---")
-    st.markdown("#### 🗓️ 기간 선택")
-    col1, col2 = st.columns(2)
-    start_date = col1.date_input("시작일", datetime.today() - timedelta(days=3*365))
-    end_date = col2.date_input("종료일", datetime.today())
+    st.header("⚙️ 설정")
+    selected_top10 = st.multiselect("글로벌 Top 10 기업", list(top_10_companies.keys()), default=list(top_10_companies.keys())[:5])
 
-    st.markdown("---")
-    chart_type = st.radio(
-        "📊 차트 타입 선택",
-        ('수익률(%) 비교', '실제 주가(USD) 보기'),
-        horizontal=True,
-        key='chart_type_radio'
-    )
+    st.subheader("🔍 주식 검색")
+    search_ticker = st.text_input("티커 심볼을 입력하세요 (예: TSLA, 삼성전자: 005930.KS)")
+    search_button = st.button("검색")
 
-# --- 메인 페이지 ---
-st.title("🚀 글로벌 Top 10 기업 주가 대시보드")
-st.markdown(f"**선택된 기간:** `{start_date}` ~ `{end_date}`")
+    st.subheader("⭐ 찜한 주식")
+    if st.session_state['favorite_stocks']:
+        st.write(", ".join(st.session_state['favorite_stocks']))
+        if st.button("찜 목록 비교"):
+            st.session_state['compare_favorites'] = True
+        else:
+            st.session_state['compare_favorites'] = False
+    else:
+        st.write("찜한 주식이 없습니다.")
 
-if not selected_companies:
-    st.warning("사이드바에서 최소 한 개 이상의 기업을 선택해주세요.")
-else:
-    selected_tickers = [companies[name] for name in selected_companies]
-    raw_data, normalized_data = load_data(selected_tickers, start_date, end_date)
+# --- 메인 영역: Top 10 기업 주가 시각화 ---
+st.header("📈 글로벌 Top 10 기업 최근 3년 주가 추이")
+for company_name in selected_top10:
+    ticker = top_10_companies.get(company_name)
+    if ticker:
+        data = load_stock_data(ticker, start_date, end_date)
+        plot_stock_price(data, f"{company_name} ({ticker}) 최근 3년 주가")
 
-    if raw_data is not None and not raw_data.empty:
-        chart_data = normalized_data if chart_type == '수익률(%) 비교' else raw_data
-        y_axis_title = f"수익률 (%, {start_date} 기준 100)" if chart_type == '수익률(%) 비교' else "조정 종가 (USD)"
-        title = "기간별 주가 수익률 변화" if chart_type == '수익률(%) 비교' else "기간별 실제 주가(Adj Close) 변화"
+# --- 메인 영역: 주식 검색 및 찜 기능 ---
+st.header("🔎 주식 검색 및 분석")
+if search_button and search_ticker:
+    ticker = search_ticker.upper()
+    searched_data = load_stock_data(ticker, start_date, end_date)
+    st.subheader(f"🔍 검색 결과: {ticker}")
+    plot_stock_price(searched_data, f"{ticker} 최근 3년 주가")
 
-        fig = go.Figure()
-        
-        # 실제 데이터가 있는 기업만 차트에 추가
-        valid_companies = {name: ticker for name, ticker in companies.items() if ticker in chart_data.columns}
+    st.subheader("💡 성장 가능성 분석 (간단)")
+    analysis_result = analyze_growth_potential(searched_data)
+    st.markdown(analysis_result)
 
-        for name, ticker in valid_companies.items():
-             if name in selected_companies: # 사용자가 선택한 기업인지 다시 확인
-                fig.add_trace(go.Scatter(
-                    x=chart_data.index, 
-                    y=chart_data[ticker], 
-                    mode='lines', 
-                    name=name
-                ))
-        
-        fig.update_layout(
-            title={'text': f'<b>{title}</b>', 'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'},
-            xaxis_title="날짜",
-            yaxis_title=y_axis_title,
-            legend_title="기업명",
-            hovermode="x unified",
-            template="plotly_dark",
-            height=600
-        )
-        st.plotly_chart(fig, use_container_width=True)
+    if ticker not in st.session_state['favorite_stocks']:
+        if st.button("⭐ 찜하기"):
+            st.session_state['favorite_stocks'].append(ticker)
+            st.toast(f"{ticker}을(를) 찜 목록에 추가했습니다.")
+    else:
+        if st.button("💔 찜 해제"):
+            st.session_state['favorite_stocks'].remove(ticker)
+            st.toast(f"{ticker}을(를) 찜 목록에서 제거했습니다.")
 
-        st.markdown("---")
-        st.subheader("📈 요약 및 데이터")
+# --- 메인 영역: 찜한 주식 비교 ---
+if st.session_state.get('compare_favorites'):
+    st.header("📊 찜한 주식 비교")
+    if st.session_state['favorite_stocks']:
+        compare_data = {}
+        for ticker in st.session_state['favorite_stocks']:
+            data = load_stock_data(ticker, start_date, end_date)
+            if data is not None and not data.empty:
+                compare_data.update({ticker: data['Adj Close']})
 
-        summary_data = []
-        for name, ticker in valid_companies.items():
-            if name in selected_companies and not raw_data[ticker].dropna().empty:
-                start_price = raw_data[ticker].dropna().iloc[0]
-                end_price = raw_data[ticker].dropna().iloc[-1]
-                period_return = (end_price / start_price - 1) * 100
-                max_price = raw_data[ticker].max()
-                min_price = raw_data[ticker].min()
-                summary_data.append({
-                    "기업명": name,
-                    "기간 내 수익률(%)": f"{period_return:.2f}%",
-                    "시작 가격(USD)": f"${start_price:.2f}",
-                    "종료 가격(USD)": f"${end_price:.2f}",
-                    "최고가(USD)": f"${max_price:.2f}",
-                    "최저가(USD)": f"${min_price:.2f}"
-                })
-        
-        if summary_data:
-            summary_df = pd.DataFrame(summary_data).set_index("기업명")
-            st.dataframe(summary_df, use_container_width=True)
-
-        tab1, tab2 = st.tabs(["실제 주가 데이터 (USD)", "수익률 데이터 (%)"])
-        with tab1:
-            st.dataframe(raw_data.style.format("${:,.2f}", na_rep="-"), use_container_width=True)
-        with tab2:
-            st.dataframe(normalized_data.style.format("{:,.2f}", na_rep="-"), use_container_width=True)
+        if compare_data:
+            compare_df = pd.DataFrame(compare_data)
+            fig_compare = go.Figure()
+            for ticker, prices in compare_df.items():
+                fig_compare.add_trace(go.Scatter(x=prices.index, y=prices, mode='lines', name=ticker))
+            fig_compare.update_layout(title="찜한 주식 주가 비교", xaxis_title="날짜", yaxis_title="조정 종가 (USD)", template="plotly_dark")
+            st.plotly_chart(fig_compare, use_container_width=True)
+        else:
+            st.warning("찜한 주식의 데이터를 불러올 수 없습니다.")
+    else:
+        st.info("찜한 주식이 없습니다.")
