@@ -11,7 +11,7 @@ tourist_spots_data = {
     "파리": [
         {"name": "에펠탑 🗼", "lat": 48.8584, "lon": 2.2945,
          "description": "파리의 상징이자 랜드마크로, 낮과 밤 언제 방문해도 아름다운 풍경을 선사합니다. 저녁에는 5분간 반짝이는 에펠탑 야경을 놓치지 마세요! 미리 온라인으로 티켓을 예매하면 대기 시간을 줄일 수 있습니다.",
-         "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Eiffel_Tower_from_Champs_de_Mars.jpg/800px-Eiffel_Tower_from_Champs_de_Mars.jpg",
+         "image": "https://i.namu.wiki/i/LFRIiqAJzEUKx0dbsftnohx78BLrGv9qznkKtCUTyephVHhu9gYo3pRs_7YyBnDNBo_6ttVnBw1AZ5KZgbH6tw.webp",
          "region": "파리"},
         {"name": "루브르 박물관 🖼️", "lat": 48.8606, "lon": 2.3376,
          "description": "세계에서 가장 큰 박물관 중 하나로, 레오나르도 다빈치의 '모나리자', 밀로의 '비너스' 등 수많은 예술 작품을 소장하고 있습니다. 워낙 넓으니 미리 보고 싶은 작품을 정해서 효율적인 동선을 계획하는 것이 좋습니다.",
