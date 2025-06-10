@@ -2,11 +2,13 @@ import streamlit as st
 import numpy as np
 import plotly.express as px
 import pandas as pd
+# streamlit_elements 라이브러리 임포트
+from streamlit_elements import elements, html
 
-st.set_page_config(layout="wide", page_title="역학적 에너지 보존 시뮬레이션 및 퀴즈")
+st.set_page_config(layout="wide", page_title="역학적 에너지 보존 시뮬레이션")
 
-st.title("역학적 에너지 보존 시뮬레이션 및 개념 확인 퀴즈")
-st.subheader("위치 에너지와 운동 에너지의 변화를 확인하고 개념을 점검해 보세요!")
+st.title("🚀 움직이는 물체 시뮬레이션: 역학적 에너지 보존")
+st.subheader("물체의 낙하 운동과 함께 위치 에너지, 운동 에너지의 변화를 확인해 보세요!")
 
 # --- 운동 에너지 및 위치 에너지 공식 설명 ---
 st.markdown("""
@@ -36,7 +38,7 @@ time_steps = st.sidebar.slider("시간 단계 수", min_value=50, max_value=500,
 
 # --- 계산 ---
 dt = time_duration / time_steps
-time = np.linspace(0, time_duration, time_steps)
+time_points = np.linspace(0, time_duration, time_steps)
 
 heights = []
 velocities = []
@@ -44,43 +46,28 @@ potential_energies = []
 kinetic_energies = []
 total_energies = []
 
-current_height = initial_height
-current_velocity = 0.0 # 초기 속도 0
+# 각 시간 단계에서의 높이와 속도 계산
+for t in time_points:
+    # 자유 낙하 공식: h = h0 - 0.5 * g * t^2
+    # v = g * t
+    h = initial_height - 0.5 * g * t**2
+    v = g * t
 
-for t_step in time:
     # 물체가 땅에 닿으면 멈춤
-    if current_height <= 0:
-        current_height = 0
-        current_velocity = 0
-    else:
-        # 자유 낙하 공식 적용
-        # 현재 시점(t_step)에서 낙하한 거리
-        fall_distance = 0.5 * g * t_step**2
-        current_height = initial_height - fall_distance
+    if h < 0:
+        h = 0
+        # 땅에 닿는 순간의 최종 속도 계산 (vf = sqrt(2gh0))
+        v = np.sqrt(2 * g * initial_height)
 
-        # 현재 시점(t_step)에서의 속도
-        current_velocity = g * t_step
-
-        if current_height < 0: # 땅에 닿으면
-            current_height = 0
-            # 땅에 닿는 순간의 속도 계산 (vf^2 = vi^2 + 2ad)
-            # 여기서는 자유낙하므로 vi = 0, a = g, d = initial_height
-            current_velocity = np.sqrt(2 * g * initial_height)
-
-
-    pe = mass * g * current_height
-    ke = 0.5 * mass * current_velocity**2
-    me = pe + ke
-
-    heights.append(current_height)
-    velocities.append(current_velocity)
-    potential_energies.append(pe)
-    kinetic_energies.append(ke)
-    total_energies.append(me)
+    heights.append(h)
+    velocities.append(v)
+    potential_energies.append(mass * g * h)
+    kinetic_energies.append(0.5 * mass * v**2)
+    total_energies.append(mass * g * h + 0.5 * mass * v**2) # PE + KE
 
 # 데이터를 DataFrame으로 변환
 df = pd.DataFrame({
-    "시간 (s)": time,
+    "시간 (s)": time_points,
     "높이 (m)": heights,
     "속도 (m/s)": velocities,
     "위치 에너지 (J)": potential_energies,
@@ -88,23 +75,129 @@ df = pd.DataFrame({
     "총 역학 에너지 (J)": total_energies
 })
 
-# --- 그래프 시각화 ---
-st.header("에너지 변화 그래프")
+# --- 시뮬레이션 화면 및 그래프 배치 ---
+st.markdown("---")
+st.header("시뮬레이션 화면 및 에너지 변화 그래프")
 
-# 에너지 그래프
-fig_energy = px.line(df, x="시간 (s)", y=["위치 에너지 (J)", "운동 에너지 (J)", "총 역학 에너지 (J)"],
-                     title="시간에 따른 에너지 변화",
-                     labels={"value": "에너지 (J)", "variable": "에너지 종류"},
-                     height=500)
-fig_energy.update_layout(hovermode="x unified")
-st.plotly_chart(fig_energy, use_container_width=True)
+col1, col2 = st.columns([1, 2]) # 1:2 비율로 컬럼 분할
 
-# 높이 및 속도 그래프
-st.header("높이 및 속도 변화 그래프")
+with col1:
+    st.subheader("물체 낙하 시뮬레이션")
+    # Streamlit Elements를 사용하여 HTML, CSS, JavaScript 삽입
+    with elements("simulation_area"):
+        # CSS 스타일 (물체, 배경)
+        st.markdown(
+            f"""
+            <style>
+                .simulation-container {{
+                    position: relative;
+                    width: 100%;
+                    height: 400px; /* 시뮬레이션 높이 */
+                    background-color: #e0f2f7;
+                    border: 2px solid #333;
+                    overflow: hidden; /* 물체가 컨테이너 밖으로 나가지 않게 */
+                    margin-bottom: 20px;
+                }}
+                .ball {{
+                    position: absolute;
+                    width: 30px;
+                    height: 30px;
+                    background-color: #ff4b4b;
+                    border-radius: 50%;
+                    left: calc(50% - 15px); /* 중앙 정렬 */
+                    top: 0px; /* 초기 위치 */
+                    transform: translateY(0%); /* 높이에 따라 조절 */
+                    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+                }}
+                .ground {{
+                    position: absolute;
+                    bottom: 0;
+                    width: 100%;
+                    height: 20px;
+                    background-color: #6d4c41;
+                    color: white;
+                    text-align: center;
+                    line-height: 20px;
+                    font-size: 0.8em;
+                }}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # HTML 구조
+        html.div(
+            [
+                html.div(id="ball", className="ball"),
+                html.div("GROUND", className="ground")
+            ],
+            className="simulation-container"
+        )
+
+        # JavaScript 애니메이션 로직
+        # 초기 높이와 중력 가속도를 JS로 전달
+        js_code = f"""
+            const ball = document.getElementById('ball');
+            const container = document.querySelector('.simulation-container');
+            const containerHeight = container.clientHeight; // 컨테이너 높이 (px)
+            const initialHeightMeters = {initial_height}; // 사용자 설정 초기 높이 (m)
+            const g = {g}; // 중력 가속도 (m/s^2)
+
+            let startTime;
+
+            function animateBall(timestamp) {{
+                if (!startTime) startTime = timestamp;
+                const elapsed = (timestamp - startTime) / 1000; // 경과 시간 (초)
+
+                // 자유 낙하 공식: h = 0.5 * g * t^2
+                let fallDistanceMeters = 0.5 * g * elapsed * elapsed;
+
+                // 물체가 실제 초기 높이 (m)를 넘어가지 않도록
+                if (fallDistanceMeters > initialHeightMeters) {{
+                    fallDistanceMeters = initialHeightMeters;
+                }}
+
+                // 시뮬레이션 컨테이너 내에서의 픽셀 위치로 변환
+                // initialHeightMeters 에 비례하여 containerHeight 내에서 움직이도록 스케일링
+                // 픽셀 단위의 낙하 거리. (낙하 거리 / 총 높이) * 컨테이너 높이
+                const fallDistancePixels = (fallDistanceMeters / initialHeightMeters) * (containerHeight - ball.clientHeight - 20); // 20px는 땅 높이
+                
+                // 물체의 현재 top 위치 (픽셀)
+                let currentTop = fallDistancePixels;
+
+                // 물체가 땅에 닿으면 멈춤
+                if (currentTop >= containerHeight - ball.clientHeight - 20) {{
+                    currentTop = containerHeight - ball.clientHeight - 20;
+                }}
+                ball.style.top = currentTop + 'px';
+
+                // 시뮬레이션 시간이 종료되지 않았거나, 물체가 아직 땅에 닿지 않았다면 계속 애니메이션
+                if (elapsed < {time_duration} && currentTop < containerHeight - ball.clientHeight - 20) {{
+                    requestAnimationFrame(animateBall);
+                }}
+            }}
+            // 애니메이션 시작
+            requestAnimationFrame(animateBall);
+        """
+        html.script(js_code)
+
+with col2:
+    # 에너지 그래프
+    st.subheader("시간에 따른 에너지 변화")
+    fig_energy = px.line(df, x="시간 (s)", y=["위치 에너지 (J)", "운동 에너지 (J)", "총 역학 에너지 (J)"],
+                         title="시간에 따른 에너지 변화",
+                         labels={"value": "에너지 (J)", "variable": "에너지 종류"},
+                         height=500)
+    fig_energy.update_layout(hovermode="x unified")
+    st.plotly_chart(fig_energy, use_container_width=True)
+
+# 높이 및 속도 그래프 (추가 정보)
+st.markdown("---")
+st.header("높이 및 속도 변화 그래프 (참고)")
 fig_height_velocity = px.line(df, x="시간 (s)", y=["높이 (m)", "속도 (m/s)"],
                               title="시간에 따른 높이 및 속도 변화",
                               labels={"value": "값", "variable": "측정량"},
-                              height=400)
+                              height=300)
 fig_height_velocity.update_layout(hovermode="x unified")
 st.plotly_chart(fig_height_velocity, use_container_width=True)
 
