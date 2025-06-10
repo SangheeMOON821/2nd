@@ -5,4 +5,3 @@ plotly
 matplotlib
 streamlit_elements
 numpy
-matplotlib.pyplot
