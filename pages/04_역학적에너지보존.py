@@ -3,10 +3,28 @@ import numpy as np
 import plotly.express as px
 import pandas as pd
 
-st.set_page_config(layout="wide", page_title="Mechanical Energy Conservation")
+st.set_page_config(layout="wide", page_title="역학적 에너지 보존 시뮬레이션 및 퀴즈")
 
-st.title("역학적 에너지 보존 시뮬레이션")
-st.subheader("위치 에너지와 운동 에너지 변화 확인")
+st.title("역학적 에너지 보존 시뮬레이션 및 개념 확인 퀴즈")
+st.subheader("위치 에너지와 운동 에너지의 변화를 확인하고 개념을 점검해 보세요!")
+
+# --- 운동 에너지 및 위치 에너지 공식 설명 ---
+st.markdown("""
+### 💡 역학적 에너지의 기본 공식
+* **위치 에너지 (Potential Energy, PE)**: 물체가 어떤 위치에 있을 때 가지는 에너지. 중력장 내에서는 다음과 같습니다.
+    $$ PE = mgh $$
+    여기서 $m$은 질량 (kg), $g$는 중력 가속도 (m/s²), $h$는 높이 (m) 입니다.
+
+* **운동 에너지 (Kinetic Energy, KE)**: 물체가 움직일 때 가지는 에너지.
+    $$ KE = \\frac{1}{2}mv^2 $$
+    여기서 $m$은 질량 (kg), $v$는 속도 (m/s) 입니다.
+
+* **총 역학 에너지 (Mechanical Energy, ME)**: 위치 에너지와 운동 에너지의 합입니다.
+    $$ ME = PE + KE $$
+    공기 저항과 같은 외부 방해 요소가 없다면, 총 역학 에너지는 항상 보존됩니다.
+""")
+
+st.markdown("---")
 
 # --- 사용자 입력 ---
 st.sidebar.header("시뮬레이션 설정")
@@ -29,25 +47,24 @@ total_energies = []
 current_height = initial_height
 current_velocity = 0.0 # 초기 속도 0
 
-for t in time:
+for t_step in time:
     # 물체가 땅에 닿으면 멈춤
     if current_height <= 0:
         current_height = 0
         current_velocity = 0
     else:
-        # 중력 가속도에 의한 속도 변화 (v = v0 + at)
-        current_velocity = g * t # 자유 낙하 공식 (h = 0.5 * g * t^2 -> v = g*t)
-
-        # 높이 변화 (h = h0 - 0.5 * g * t^2)
-        # 여기서의 't'는 각 시간 단계의 시작부터의 상대적인 시간
-        # 조금 더 정확하게는 각 시간 스텝마다 계산
-        # 높이 계산은 이전 높이에서 v*dt 또는 0.5*g*dt^2를 빼는 방식이 더 정확
-        # 여기서는 단순화를 위해 자유낙하 공식을 활용
-        fall_distance = 0.5 * g * t**2
+        # 자유 낙하 공식 적용
+        # 현재 시점(t_step)에서 낙하한 거리
+        fall_distance = 0.5 * g * t_step**2
         current_height = initial_height - fall_distance
-        if current_height < 0:
+
+        # 현재 시점(t_step)에서의 속도
+        current_velocity = g * t_step
+
+        if current_height < 0: # 땅에 닿으면
             current_height = 0
-            # 땅에 닿는 순간의 속도로 고정
+            # 땅에 닿는 순간의 속도 계산 (vf^2 = vi^2 + 2ad)
+            # 여기서는 자유낙하므로 vi = 0, a = g, d = initial_height
             current_velocity = np.sqrt(2 * g * initial_height)
 
 
@@ -99,3 +116,59 @@ st.markdown("""
 * **운동 에너지**는 속도가 증가함에 따라 증가합니다.
 * 두 에너지의 합인 **총 역학 에너지**는 거의 일정하게 유지되어 에너지 보존 법칙을 따릅니다.
 """)
+
+st.markdown("---")
+
+# --- 간단한 퀴즈 ---
+st.header("🤔 역학적 에너지 보존 개념 확인 퀴즈")
+
+quiz_questions = [
+    {
+        "question": "물체의 높이가 높아질수록 어떤 에너지가 증가할까요?",
+        "options": ["운동 에너지", "위치 에너지", "열 에너지", "화학 에너지"],
+        "answer": "위치 에너지"
+    },
+    {
+        "question": "물체의 속도가 빨라질수록 어떤 에너지가 증가할까요?",
+        "options": ["위치 에너지", "탄성 에너지", "운동 에너지", "핵 에너지"],
+        "answer": "운동 에너지"
+    },
+    {
+        "question": "공기 저항이 없는 이상적인 자유 낙하 상황에서 총 역학 에너지는 어떻게 될까요?",
+        "options": ["증가한다", "감소한다", "일정하게 보존된다", "0이 된다"],
+        "answer": "일정하게 보존된다"
+    },
+    {
+        "question": "질량이 $m$인 물체가 높이 $h$에 있을 때의 위치 에너지 공식은?",
+        "options": ["$\\frac{1}{2}mv^2$", "$mgh$", "$mh^2$", "$mg/h$"],
+        "answer": "$mgh$"
+    },
+    {
+        "question": "질량이 $m$인 물체가 속도 $v$로 움직일 때의 운동 에너지 공식은?",
+        "options": ["$mgh$", "$mv$", "$\\frac{1}{2}mv^2$", "$mgv$"],
+        "answer": "$\\frac{1}{2}mv^2$"
+    }
+]
+
+score = 0
+for i, q in enumerate(quiz_questions):
+    st.subheader(f"Q{i+1}. {q['question']}")
+    user_answer = st.radio("정답을 선택하세요:", q['options'], key=f"q{i}")
+
+    if st.button("정답 확인", key=f"check{i}"):
+        if user_answer == q['answer']:
+            st.success("✅ 정답입니다!")
+            score += 1
+        else:
+            st.error(f"❌ 오답입니다. 정답은 '{q['answer']}' 입니다.")
+    st.markdown("---")
+
+if st.button("최종 점수 확인"):
+    st.info(f"총 {len(quiz_questions)}문제 중 {score}문제를 맞추셨습니다.")
+    if score == len(quiz_questions):
+        st.balloons()
+        st.success("🎉 완벽합니다! 역학적 에너지 보존 개념을 정확히 이해하고 계시네요!")
+    elif score >= len(quiz_questions) * 0.7:
+        st.info("👍 잘하셨습니다! 대부분의 개념을 이해하고 계시네요.")
+    else:
+        st.warning("🧐 다시 한번 시뮬레이션과 설명을 살펴보세요.")
