@@ -2,7 +2,6 @@ import streamlit as st
 import numpy as np
 import plotly.express as px
 import pandas as pd
-# streamlit_elements 라이브러리 임포트
 from streamlit_elements import elements, html
 
 st.set_page_config(layout="wide", page_title="역학적 에너지 보존 시뮬레이션")
@@ -35,6 +34,8 @@ initial_height = st.sidebar.slider("초기 높이 (m)", min_value=1.0, max_value
 g = st.sidebar.slider("중력 가속도 (m/s²)", min_value=1.0, max_value=20.0, value=9.81, step=0.01)
 time_duration = st.sidebar.slider("시뮬레이션 시간 (s)", min_value=1.0, max_value=10.0, value=5.0, step=0.1)
 time_steps = st.sidebar.slider("시간 단계 수", min_value=50, max_value=500, value=200, step=10)
+ball_diameter = st.sidebar.slider("물체 지름 (px)", min_value=10, max_value=50, value=30, step=1)
+
 
 # --- 계산 ---
 dt = time_duration / time_steps
@@ -100,11 +101,11 @@ with col1:
                 }}
                 .ball {{
                     position: absolute;
-                    width: 30px;
-                    height: 30px;
+                    width: {ball_diameter}px; /* 동적으로 조절 */
+                    height: {ball_diameter}px; /* 동적으로 조절 */
                     background-color: #ff4b4b;
                     border-radius: 50%;
-                    left: calc(50% - 15px); /* 중앙 정렬 */
+                    left: calc(50% - {ball_diameter/2}px); /* 중앙 정렬 */
                     top: 0px; /* 초기 위치 */
                     transform: translateY(0%); /* 높이에 따라 조절 */
                     box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
@@ -135,18 +136,22 @@ with col1:
         )
 
         # JavaScript 애니메이션 로직
-        # 초기 높이와 중력 가속도를 JS로 전달
         js_code = f"""
             const ball = document.getElementById('ball');
             const container = document.querySelector('.simulation-container');
             const containerHeight = container.clientHeight; // 컨테이너 높이 (px)
+            const ballDiameterPx = {ball_diameter}; // 물체 지름 (px)
+            const groundHeightPx = 20; // 땅 높이 (px)
+
             const initialHeightMeters = {initial_height}; // 사용자 설정 초기 높이 (m)
             const g = {g}; // 중력 가속도 (m/s^2)
+            const simulationDuration = {time_duration}; // 시뮬레이션 전체 시간 (s)
 
-            let startTime;
+            let startTime = null;
+            let animationFrameId = null;
 
             function animateBall(timestamp) {{
-                if (!startTime) startTime = timestamp;
+                if (startTime === null) startTime = timestamp;
                 const elapsed = (timestamp - startTime) / 1000; // 경과 시간 (초)
 
                 // 자유 낙하 공식: h = 0.5 * g * t^2
@@ -158,25 +163,31 @@ with col1:
                 }}
 
                 // 시뮬레이션 컨테이너 내에서의 픽셀 위치로 변환
-                // initialHeightMeters 에 비례하여 containerHeight 내에서 움직이도록 스케일링
-                // 픽셀 단위의 낙하 거리. (낙하 거리 / 총 높이) * 컨테이너 높이
-                const fallDistancePixels = (fallDistanceMeters / initialHeightMeters) * (containerHeight - ball.clientHeight - 20); // 20px는 땅 높이
+                // (낙하 거리 / 총 높이) * (컨테이너 내부의 실제 낙하 가능한 높이)
+                const maxFallPixels = containerHeight - ballDiameterPx - groundHeightPx;
+                const fallDistancePixels = (fallDistanceMeters / initialHeightMeters) * maxFallPixels;
                 
-                // 물체의 현재 top 위치 (픽셀)
                 let currentTop = fallDistancePixels;
 
                 // 물체가 땅에 닿으면 멈춤
-                if (currentTop >= containerHeight - ball.clientHeight - 20) {{
-                    currentTop = containerHeight - ball.clientHeight - 20;
+                if (currentTop >= maxFallPixels) {{
+                    currentTop = maxFallPixels;
                 }}
                 ball.style.top = currentTop + 'px';
 
-                // 시뮬레이션 시간이 종료되지 않았거나, 물체가 아직 땅에 닿지 않았다면 계속 애니메이션
-                if (elapsed < {time_duration} && currentTop < containerHeight - ball.clientHeight - 20) {{
-                    requestAnimationFrame(animateBall);
+                // 시뮬레이션 시간 종료 또는 물체가 땅에 닿으면 애니메이션 중지
+                if (elapsed < simulationDuration && currentTop < maxFallPixels) {{
+                    animationFrameId = requestAnimationFrame(animateBall);
+                }} else {{
+                    cancelAnimationFrame(animationFrameId);
                 }}
             }}
-            // 애니메이션 시작
+            
+            // 앱이 다시 로드될 때마다 애니메이션을 재시작
+            // 이전 애니메이션이 있다면 취소하고 새로 시작
+            if (animationFrameId) {{
+                cancelAnimationFrame(animationFrameId);
+            }}
             requestAnimationFrame(animateBall);
         """
         html.script(js_code)
@@ -185,9 +196,9 @@ with col2:
     # 에너지 그래프
     st.subheader("시간에 따른 에너지 변화")
     fig_energy = px.line(df, x="시간 (s)", y=["위치 에너지 (J)", "운동 에너지 (J)", "총 역학 에너지 (J)"],
-                         title="시간에 따른 에너지 변화",
-                         labels={"value": "에너지 (J)", "variable": "에너지 종류"},
-                         height=500)
+                     title="시간에 따른 에너지 변화",
+                     labels={"value": "에너지 (J)", "variable": "에너지 종류"},
+                     height=500)
     fig_energy.update_layout(hovermode="x unified")
     st.plotly_chart(fig_energy, use_container_width=True)
 
