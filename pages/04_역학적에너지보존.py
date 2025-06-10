@@ -48,23 +48,24 @@ kinetic_energies = []
 total_energies = []
 
 # 각 시간 단계에서의 높이와 속도 계산
+# 여기서는 시뮬레이션 데이터 계산이므로, 실제 물리 법칙에 맞게 계산
 for t in time_points:
     # 자유 낙하 공식: h = h0 - 0.5 * g * t^2
     # v = g * t
-    h = initial_height - 0.5 * g * t**2
-    v = g * t
+    h_current = initial_height - 0.5 * g * t**2
+    v_current = g * t
 
-    # 물체가 땅에 닿으면 멈춤
-    if h < 0:
-        h = 0
+    # 물체가 땅에 닿았을 때 (높이가 0 이하)
+    if h_current < 0:
+        h_current = 0 # 높이를 0으로 고정
         # 땅에 닿는 순간의 최종 속도 계산 (vf = sqrt(2gh0))
-        v = np.sqrt(2 * g * initial_height)
+        v_current = np.sqrt(2 * g * initial_height)
 
-    heights.append(h)
-    velocities.append(v)
-    potential_energies.append(mass * g * h)
-    kinetic_energies.append(0.5 * mass * v**2)
-    total_energies.append(mass * g * h + 0.5 * mass * v**2) # PE + KE
+    heights.append(h_current)
+    velocities.append(v_current)
+    potential_energies.append(mass * g * h_current)
+    kinetic_energies.append(0.5 * mass * v_current**2)
+    total_energies.append(mass * g * h_current + 0.5 * mass * v_current**2) # PE + KE
 
 # 데이터를 DataFrame으로 변환
 df = pd.DataFrame({
@@ -120,6 +121,7 @@ with col1:
                     text-align: center;
                     line-height: 20px;
                     font-size: 0.8em;
+                    z-index: 1; /* 물체 위로 올라오지 않게 */
                 }}
             </style>
             """,
@@ -136,6 +138,9 @@ with col1:
         )
 
         # JavaScript 애니메이션 로직
+        # `st.session_state`를 사용하여 애니메이션 ID를 저장하고 재사용
+        # 이는 Streamlit 앱이 재실행될 때마다 새로운 애니메이션을 시작하는 대신
+        # 기존 애니메이션을 중지하고 새롭게 시작하여 중복 실행을 방지합니다.
         js_code = f"""
             const ball = document.getElementById('ball');
             const container = document.querySelector('.simulation-container');
@@ -143,52 +148,63 @@ with col1:
             const ballDiameterPx = {ball_diameter}; // 물체 지름 (px)
             const groundHeightPx = 20; // 땅 높이 (px)
 
+            // 물체가 실제로 움직일 수 있는 최대 픽셀 거리 (땅에 닿기 직전까지)
+            const maxFallPixels = containerHeight - ballDiameterPx - groundHeightPx;
+
             const initialHeightMeters = {initial_height}; // 사용자 설정 초기 높이 (m)
             const g = {g}; // 중력 가속도 (m/s^2)
             const simulationDuration = {time_duration}; // 시뮬레이션 전체 시간 (s)
 
             let startTime = null;
-            let animationFrameId = null;
+            let animationFrameId = window.lastAnimationFrameId || null; // 이전에 저장된 ID 사용
+
+            // 이전 애니메이션이 있다면 취소하고 새로 시작
+            if (animationFrameId) {{
+                cancelAnimationFrame(animationFrameId);
+                window.lastAnimationFrameId = null; // 초기화
+            }}
 
             function animateBall(timestamp) {{
                 if (startTime === null) startTime = timestamp;
                 const elapsed = (timestamp - startTime) / 1000; // 경과 시간 (초)
 
-                // 자유 낙하 공식: h = 0.5 * g * t^2
+                // 자유 낙하 공식: h_meters = 0.5 * g * t^2
                 let fallDistanceMeters = 0.5 * g * elapsed * elapsed;
 
-                // 물체가 실제 초기 높이 (m)를 넘어가지 않도록
+                // 물체가 실제 초기 높이 (m)를 넘어서는 것을 방지
                 if (fallDistanceMeters > initialHeightMeters) {{
                     fallDistanceMeters = initialHeightMeters;
                 }}
 
-                // 시뮬레이션 컨테이너 내에서의 픽셀 위치로 변환
-                // (낙하 거리 / 총 높이) * (컨테이너 내부의 실제 낙하 가능한 높이)
-                const maxFallPixels = containerHeight - ballDiameterPx - groundHeightPx;
-                const fallDistancePixels = (fallDistanceMeters / initialHeightMeters) * maxFallPixels;
+                // 미터 단위 낙하 거리를 픽셀 단위로 스케일링
+                // 중요한 부분: 미터 단위의 전체 높이 (initialHeightMeters)에 비례하여
+                // 픽셀 단위의 전체 낙하 가능 거리 (maxFallPixels)를 사용하여 스케일링
+                let currentTopPx = (fallDistanceMeters / initialHeightMeters) * maxFallPixels;
                 
-                let currentTop = fallDistancePixels;
-
                 // 물체가 땅에 닿으면 멈춤
-                if (currentTop >= maxFallPixels) {{
-                    currentTop = maxFallPixels;
+                if (currentTopPx >= maxFallPixels) {{
+                    currentTopPx = maxFallPixels;
+                    ball.style.top = currentTopPx + 'px';
+                    // 애니메이션 종료
+                    window.lastAnimationFrameId = null; // ID 초기화
+                    return;
                 }}
-                ball.style.top = currentTop + 'px';
+                
+                ball.style.top = currentTopPx + 'px';
 
-                // 시뮬레이션 시간 종료 또는 물체가 땅에 닿으면 애니메이션 중지
-                if (elapsed < simulationDuration && currentTop < maxFallPixels) {{
+                // 시뮬레이션 전체 시간을 넘지 않았을 때만 다음 프레임 요청
+                if (elapsed < simulationDuration) {{
                     animationFrameId = requestAnimationFrame(animateBall);
+                    window.lastAnimationFrameId = animationFrameId; // ID 저장
                 }} else {{
-                    cancelAnimationFrame(animationFrameId);
+                    // 시뮬레이션 시간 종료 시 애니메이션 강제 종료
+                    window.lastAnimationFrameId = null; // ID 초기화
                 }}
             }}
             
-            // 앱이 다시 로드될 때마다 애니메이션을 재시작
-            // 이전 애니메이션이 있다면 취소하고 새로 시작
-            if (animationFrameId) {{
-                cancelAnimationFrame(animationFrameId);
-            }}
-            requestAnimationFrame(animateBall);
+            // 애니메이션 시작
+            animationFrameId = requestAnimationFrame(animateBall);
+            window.lastAnimationFrameId = animationFrameId; // ID 저장
         """
         html.script(js_code)
 
